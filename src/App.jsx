@@ -3,11 +3,22 @@ import axios from 'axios';
 import './App.css';
 
 function App() {
-  const [formData, setFormData] = useState({ fullName: '', email: '', course: '', phone: '' });
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    course: '',
+    phone: ''
+  });
+  
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  // Backend Link (Make sure spelling is correct)
+  const API_URL = "https://admission-backend-beta.vercel.app/api/admission";
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,35 +26,49 @@ function App() {
     setMessage({ type: '', text: '' });
 
     try {
-      // Backend URL
-      const res = await axios.post("https://admission-backend-beta.vercel.app/api/admission", formData);
-      setMessage({ type: 'success', text: res.data.message });
-      setFormData({ fullName: '', email: '', course: '', phone: '' });
+      const response = await axios.post(API_URL, formData);
+      if (response.data.success) {
+        setMessage({ type: 'success', text: response.data.message });
+        setFormData({ fullName: '', email: '', course: '', phone: '' });
+      }
     } catch (err) {
-      setMessage({ type: 'error', text: "Submission failed. Please check your connection." });
+      console.error("Submit Error:", err.response?.data || err.message);
+      setMessage({ 
+        type: 'error', 
+        text: err.response?.data?.message || "Submission failed. Please try again." 
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="admission-page">
-      <div className="form-card">
-        <h1>Admission Portal</h1>
-        {message.text && <div className={`alert ${message.type}`}>{message.text}</div>}
+    <div className="admission-container">
+      <div className="form-box">
+        <h2>Admission Portal</h2>
+        
+        {message.text && (
+          <div className={`status-msg ${message.type}`}>
+            {message.text}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
-          <input className="input-style" type="text" name="fullName" placeholder="Name" value={formData.fullName} onChange={handleChange} required />
-          <input className="input-style" type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required />
-          <select className="input-style" name="course" value={formData.course} onChange={handleChange} required>
+          <input type="text" name="fullName" placeholder="Full Name" value={formData.fullName} onChange={handleChange} required />
+          <input type="email" name="email" placeholder="Email Address" value={formData.email} onChange={handleChange} required />
+          <select name="course" value={formData.course} onChange={handleChange} required>
             <option value="">Select Course</option>
             <option value="Web Development">Web Development</option>
             <option value="Graphic Design">Graphic Design</option>
           </select>
-          <input className="input-style" type="text" name="phone" placeholder="Phone" value={formData.phone} onChange={handleChange} required />
-          <button type="submit" className="submit-btn" disabled={loading}>{loading ? "Submitting..." : "Apply Now"}</button>
+          <input type="text" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} required />
+          <button type="submit" disabled={loading}>
+            {loading ? "Please wait..." : "Apply Now"}
+          </button>
         </form>
       </div>
     </div>
   );
 }
+
 export default App;
