@@ -14,7 +14,8 @@ function App() {
   const [message, setMessage] = useState({ type: '', text: '' });
 
   // Backend Link (Make sure spelling is correct)
-  const API_URL = "https://admission-backend-rouge.vercel.app/api";
+  const API_URL = "// Is URL ko pura karein
+const API_URL = "https://admission-backend-rouge.vercel.app/api/admission";";
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
