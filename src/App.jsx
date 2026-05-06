@@ -23,14 +23,27 @@ function App() {
     setMessage({ type: '', text: '' });
 
     try {
-      // Deployed Backend ka URL env variable se aayega
-      const apiUrl = import.meta.env.VITE_API_URL;
-      const res = await axios.post(`https://admission-backend-beta.vercel.app/api/admission`, formData);
+      // Note: Backend URL check karlein ke wo correct hai
+      const res = await axios.post(
+        `https://admission-backend-beta.vercel.app/api/admission`, 
+        formData,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true // CORS preflight validation ke liye lazmi hai
+        }
+      );
       
-      setMessage({ type: 'success', text: res.data.message });
+      setMessage({ type: 'success', text: res.data.message || "Admission successful!" });
       setFormData({ fullName: '', email: '', course: '', phone: '' });
+      
     } catch (err) {
-      setMessage({ type: 'error', text: "Submission failed. Please check your connection." });
+      // Console mein full error check karne ke liye
+      console.error("Submission Error Details:", err.response || err);
+      
+      const errorMessage = err.response?.data?.message || "Submission failed. Please check your connection.";
+      setMessage({ type: 'error', text: errorMessage });
     } finally {
       setLoading(false);
     }
