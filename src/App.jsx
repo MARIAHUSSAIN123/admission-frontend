@@ -1,49 +1,65 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import './App.css';
+import React, { useState } from "react";
+import axios from "axios";
+import "./App.css";
 
 function App() {
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    course: '',
-    phone: ''
+    fullName: "",
+    email: "",
+    course: "",
+    phone: "",
   });
-  
+
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
+  const [message, setMessage] = useState({ type: "", text: "" });
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage({ type: '', text: '' });
+    setMessage({ type: "", text: "" });
 
     try {
-      // Note: Backend URL check karlein ke wo correct hai
       const res = await axios.post(
-        `https://admission-backend-beta.vercel.app/api/admission`, 
+        "https://admission-backend-beta.vercel.app/api/admission",
         formData,
         {
           headers: {
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json",
           },
-          withCredentials: true // CORS preflight validation ke liye lazmi hai
+          // ❌ withCredentials hata diya (important)
         }
       );
-      
-      setMessage({ type: 'success', text: res.data.message || "Admission successful!" });
-      setFormData({ fullName: '', email: '', course: '', phone: '' });
-      
+
+      setMessage({
+        type: "success",
+        text: res.data.message || "Admission successful!",
+      });
+
+      setFormData({
+        fullName: "",
+        email: "",
+        course: "",
+        phone: "",
+      });
+
     } catch (err) {
-      // Console mein full error check karne ke liye
-      console.error("Submission Error Details:", err.response || err);
-      
-      const errorMessage = err.response?.data?.message || "Submission failed. Please check your connection.";
-      setMessage({ type: 'error', text: errorMessage });
+      console.error("Full Error:", err);
+
+      const errorMessage =
+        err.response?.data?.message ||
+        "Submission failed. Backend not responding.";
+
+      setMessage({
+        type: "error",
+        text: errorMessage,
+      });
     } finally {
       setLoading(false);
     }
@@ -52,52 +68,59 @@ function App() {
   return (
     <div className="admission-page">
       <div className="form-card">
-        <div className="title-section">
-          <h1>Admission Portal</h1>
-          <p style={{color: '#64748b', marginTop: '5px'}}>MERN Stack Project</p>
-        </div>
+        <h1>Admission Portal</h1>
 
         {message.text && (
-          <div className={`alert ${message.type === 'success' ? 'success' : 'error'}`}>
+          <div
+            style={{
+              marginBottom: "10px",
+              color: message.type === "success" ? "green" : "red",
+            }}
+          >
             {message.text}
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Full Name</label>
-            <input 
-              className="input-style" type="text" name="fullName" required 
-              placeholder="Enter your name" value={formData.fullName} onChange={handleChange} 
-            />
-          </div>
+          <input
+            type="text"
+            name="fullName"
+            placeholder="Full Name"
+            value={formData.fullName}
+            onChange={handleChange}
+            required
+          />
 
-          <div className="form-group">
-            <label>Email Address</label>
-            <input 
-              className="input-style" type="email" name="email" required 
-              placeholder="your@email.com" value={formData.email} onChange={handleChange} 
-            />
-          </div>
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
 
-          <div className="form-group">
-            <label>Course Name</label>
-            <select className="input-style" name="course" required value={formData.course} onChange={handleChange}>
-              <option value="">Select Course</option>
-              <option value="Web Development">Web Development</option>
-              <option value="Graphic Design">Graphic Design</option>
-            </select>
-          </div>
+          <select
+            name="course"
+            value={formData.course}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select Course</option>
+            <option value="Web Development">Web Development</option>
+            <option value="Graphic Design">Graphic Design</option>
+          </select>
 
-          <div className="form-group">
-            <label>Phone Number</label>
-            <input 
-              className="input-style" type="text" name="phone" required 
-              placeholder="+92 XXX XXXXXXX" value={formData.phone} onChange={handleChange} 
-            />
-          </div>
+          <input
+            type="text"
+            name="phone"
+            placeholder="Phone"
+            value={formData.phone}
+            onChange={handleChange}
+            required
+          />
 
-          <button type="submit" className="submit-btn" disabled={loading}>
+          <button type="submit" disabled={loading}>
             {loading ? "Submitting..." : "Apply Now"}
           </button>
         </form>
