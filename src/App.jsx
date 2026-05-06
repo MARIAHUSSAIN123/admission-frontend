@@ -25,7 +25,7 @@ function App() {
     try {
       // Deployed Backend ka URL env variable se aayega
       const apiUrl = import.meta.env.VITE_API_URL;
-      const res = await axios.post(`${apiUrl}/api/admission`, formData);
+      const res = await axios.post(`https://admission-backend-beta.vercel.app/api/admission`, formData);
       
       setMessage({ type: 'success', text: res.data.message });
       setFormData({ fullName: '', email: '', course: '', phone: '' });
